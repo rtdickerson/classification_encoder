@@ -1,17 +1,7 @@
-##
-## UNCLASSIFIED
-## Classification markings are for code purposes only and do not indicate 
-## classification.
-##
 
-import os
-import sys
-from enum import Enum
-from json import loads as json_loads
-import re
-
-'''
 This project provides encoding and decoding functionality for classification labels.
+
+```
 
 |              ||              |
 |      ||      ||      ||      |
@@ -51,23 +41,26 @@ This project provides encoding and decoding functionality for classification lab
 |+------------------------------ 0x40000000 - SECRET
 +------------------------------- 0x80000000 - TOP SECRET
 
-'''
+```
 
-import os
-import importlib
-from pathlib import Path
+```
+// CLASSIFICATION // SAR PROGRAM // SCI CONTAINERS // DISTRIBUTION
+                                 /                \
+            | SI {Code words} / TK {Code words} / HCS {Code words} |
 
-from .bitmask import NamedBits
-from .bitmask import BitmaskManager
-from .countrydatabase import CountryDatabase
-from .classification_encoder import ClassificationEncoder
+```
+Special Access Programs:
+- Can be SAR-{name} or just {name}
 
-# List to store all exported names
-__all__ = ["NamedBits", "BitmaskManager", "CountryDatabase", "ClassificationEncoder"]
+SCI Containers:
+- SI can be by itself, or with additional code-words like SI-CODEWORD-WORDCODE
+- TK same as SI
+  - TK can be spelled out TALENT KEYHOLE
+- HCS same as SI
+- SCI is implied
 
-    
-##
-## UNCLASSIFIED
-## Classification markings are for code purposes only and do not indicate 
-## classification.
-##
+This package supports up to:
+- 3 defined SAP program names
+- 3 defined SI containers plus GAMMA
+- 3 custom distribution "REL TO" lists.
+
