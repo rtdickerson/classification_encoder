@@ -101,17 +101,17 @@ classification = ce.decode(mask)
 ```python
 # Define custom SAP programs, SI groups, and RELTO lists
 config = {
-    'sap-a': 'PROGRAM-ALPHA',
-    'sap-b': 'PROGRAM-BRAVO',
-    'si-groupa': 'CODEWORD-ONE',
-    'si-groupb': 'CODEWORD-TWO',
+    'sap-a': 'ALPHA',
+    'sap-b': 'BRAVO',
+    'si-groupa': 'CODEWORDONE',
+    'si-groupb': 'CODEWORDTWO',
     'relto-a': 'REL TO USA, GBR, CAN, AUS'
 }
 
 ce = ClassificationEncoder(config)
 
 # Now you can use custom markings
-mask = ce.encode("SECRET//SAR-PROGRAM-ALPHA//SI/CODEWORD-ONE//NOFORN")
+mask = ce.encode("SECRET//SAR-ALPHA//SI-ONE/TK//NOFORN")
 ```
 
 ### Comparing Classifications
@@ -122,7 +122,7 @@ ce = ClassificationEncoder(None)
 mask1 = ce.encode("SECRET//NOFORN")
 mask2 = ce.encode("TOP SECRET//SCI//NOFORN")
 
-result = ce.compareTwo(mask1, mask2)
+result = MaskComparatorClass.compareTwo(mask1, mask2)
 if result == ce.COMPARE_FIRST:
     print("mask1 is more restrictive")
 elif result == ce.COMPARE_SECOND:
@@ -135,7 +135,7 @@ else:
 
 ```python
 # Check if a user's clearance allows access to a document
-user_clearance = ce.encode("SECRET//SI//TK//REL TO FVEY")
+user_clearance = ce.encode("SECRET//SI/TK//REL TO FVEY")
 document_classification = ce.encode("SECRET//NOFORN")
 
 ce.bits.bitmask = document_classification
@@ -176,15 +176,17 @@ if db.isFVEY(countries):
 ### SCI Containers
 - `SCI` - Sensitive Compartmented Information
 - `SI` - Special Intelligence
+  - `GAMMA` - common compartment
+  - Three custom compartment names
 - `TK` - TALENT KEYHOLE
 - `HCS` - HUMINT Control System
-- `GAMMA` - Special SI codeword
 
 ### Distribution Controls
 - `NOFORN` - Not Releasable to Foreign Nationals
 - `REL TO FVEY` - Releasable to Five Eyes
 - `REL TO NATO` - Releasable to NATO
 - `REL TO <countries>` - Custom country lists
+  - Understands NineEyes and FourteenEyes as country groups (they have no nickname)
 
 ### Special Access Programs (SAP)
 - Configurable SAP-A, SAP-B, SAP-C
@@ -205,8 +207,8 @@ Examples:
 - `CUI`
 - `SECRET//NOFORN`
 - `TOP SECRET//SCI//NOFORN`
-- `SECRET//SI/GAMMA//TK//REL TO FVEY`
-- `TOP SECRET//SAR-PROGRAM-NAME//SI//TK//HCS//NOFORN`
+- `SECRET//SI-GAMMA/TK//REL TO FVEY`
+- `TOP SECRET//SAR-PROGRAM//SI/TK/HCS//NOFORN`
 
 ## Testing
 
