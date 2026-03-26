@@ -689,61 +689,6 @@ class ClassificationEncoder:
         
         return result
 
-    # Comparison constants
-    COMPARE_EQUAL = 0
-    COMPARE_FIRST = -1
-    COMPARE_SECOND = 1
-    COMPARE_THIRD = 2
-    
-    def compareTwo(self, mask1: int, mask2: int) -> int:
-        """
-        Compare two classification masks.
-        
-        Args:
-            mask1: First classification bitmask
-            mask2: Second classification bitmask
-            
-        Returns:
-            COMPARE_EQUAL (0) if equal
-            COMPARE_FIRST (-1) if mask1 is more restrictive
-            COMPARE_SECOND (1) if mask2 is more restrictive
-        """
-        # Basic equality checks
-        if mask1 == mask2:
-            return self.COMPARE_EQUAL
-        if mask1 == 0 and mask2 != 0:
-            return self.COMPARE_SECOND 
-        if mask2 == 0 and mask1 != 0:
-            return self.COMPARE_FIRST
-
-        bits2 = BitmaskManager()
-        bits2.bitmask = mask2
-        bits1 = BitmaskManager()
-        bits1.bitmask = mask1
-        
-        # Examine the classification levels first
-        C1 = bits1.getEighthNibble()
-        C2 = bits2.getEighthNibble()
-        if C1 > C2:
-            return self.COMPARE_FIRST
-        elif C2 > C1:
-            return self.COMPARE_SECOND
-        return self.COMPARE_EQUAL        
-
-    def compareThree(self, mask1: int, mask2: int, mask3: int) -> int:
-        """
-        Compare three classification masks (not yet implemented).
-        
-        Args:
-            mask1: First classification bitmask
-            mask2: Second classification bitmask
-            mask3: Third classification bitmask
-            
-        Returns:
-            Comparison result (implementation pending)
-        """
-        # TODO: Implement three-way comparison
-        raise NotImplementedError("Three-way comparison not yet implemented")
 
     def checkAccess(self, accessMask: int) -> bool:
         """

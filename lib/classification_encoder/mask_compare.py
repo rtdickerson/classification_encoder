@@ -28,7 +28,7 @@ class MaskComparatorClass:
     #   ^--- this nibble is the classification level, so we can compare that first 
     # 
     @staticmethod
-    def getClassificationLevel(mask: int) -> int:
+    def getClassificationLevel(mask: BitmaskManager) -> int:
         """
         Extract the classification level from a bitmask.
         
@@ -38,80 +38,82 @@ class MaskComparatorClass:
         Returns:
             Classification level (0-15)
         """
-        return (mask >> 28) & 0xF
+        
+        return mask.getEighthNibble()
+
 
     @staticmethod
-    def getSCI(mask: int) -> bool:
+    def getSCI(mask: BitmaskManager) -> bool:
         """Check if SCI bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.SCI.value)
+        return mask.is_bit_set(NamedBits.SCI.value)
 
     @staticmethod
-    def getSIGroups(mask: int) -> bool:
+    def getSAP(mask: BitmaskManager) -> int:
+        result = 0
+        if mask.is_bit_set(NamedBits.SAP_A.value):
+            result += 1
+        if mask.is_bit_set(NamedBits.SAP_B.value):
+            result += 1
+        if mask.is_bit_set(NamedBits.SAP_C.value):
+            result += 1
+        return result
+
+    @staticmethod
+    def getSIGroups(mask: BitmaskManager) -> bool:
         """Check if any SI group bits are set."""
-        bm = BitmaskManager(mask)
-        return bm.anyNamedBitsSet([NamedBits.SI_GROUPA, 
+        return mask.anyNamedBitsSet([NamedBits.SI_GROUPA, 
             NamedBits.SI_GROUPB, 
             NamedBits.SI_GROUPC,
             NamedBits.GAMMA])
 
     @staticmethod
-    def getSIBit(mask: int) -> bool:
+    def getSIBit(mask: BitmaskManager) -> bool:
         """Check if SI bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.SI.value)
+        return mask.is_bit_set(NamedBits.SI.value)
 
     @staticmethod
-    def getTKBit(mask: int) -> bool:
+    def getTKBit(mask: BitmaskManager) -> bool:
         """Check if TK bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.TK.value)    
+        return mask.is_bit_set(NamedBits.TK.value)    
 
     @staticmethod
-    def getHCSBit(mask: int) -> bool:
+    def getHCSBit(mask: BitmaskManager) -> bool:
         """Check if HCS bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.HCS.value)
+        return mask.is_bit_set(NamedBits.HCS.value)
 
     @staticmethod
-    def getCUIBit(mask: int) -> bool:
+    def getCUIBit(mask: BitmaskManager) -> bool:
         """Check if CUI bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.CUI.value)
+        return mask.is_bit_set(NamedBits.CUI.value)
 
     @staticmethod
-    def getUnclassifiedBit(mask: int) -> bool:
+    def getUnclassifiedBit(mask: BitmaskManager) -> bool:
         """Check if UNCLASSIFIED bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.UNCLASSIFIED.value)
+        return mask.is_bit_set(NamedBits.UNCLASSIFIED.value)
 
     @staticmethod
-    def getSAP(mask: int) -> bool:
+    def getSAP(mask: BitmaskManager) -> bool:
         """Check if any SAP bits are set."""
-        bm = BitmaskManager(mask)
-        return bm.anyNamedBitsSet([NamedBits.SAP_A, NamedBits.SAP_B,
+        return mask.anyNamedBitsSet([NamedBits.SAP_A, NamedBits.SAP_B,
                                   NamedBits.SAP_C])
 
     @staticmethod
-    def getNOFORN(mask: int) -> bool:
+    def getNOFORN(mask: BitmaskManager) -> bool:
         """Check if NOFORN bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.NOFORN.value)
+        return mask.is_bit_set(NamedBits.NOFORN.value)
 
     @staticmethod
-    def getFVEY(mask: int) -> bool:
+    def getFVEY(mask: BitmaskManager) -> bool:
         """Check if FVEY bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.RELTO_FVEY.value)
+        return mask.is_bit_set(NamedBits.RELTO_FVEY.value)
         
     @staticmethod
-    def getNATO(mask: int) -> bool:
+    def getNATO(mask: BitmaskManager) -> bool:
         """Check if NATO bit is set."""
-        bm = BitmaskManager(mask)
-        return bm.is_bit_set(NamedBits.RELTO_NATO.value)
+        return mask.is_bit_set(NamedBits.RELTO_NATO.value)
 
     @staticmethod
-    def checkRelto(nb: NamedBits, mask1: int, mask2: int) -> int:
+    def checkRelto(nb: NamedBits, mask1: BitmaskManager, mask2: BitmaskManager) -> int:
         """
         Check RELTO bits in two masks and compare.
         
@@ -126,13 +128,11 @@ class MaskComparatorClass:
             2 if only mask2 has it (mask2 more restrictive)
             0 if neither has it
         """
-        bm1 = BitmaskManager(mask1)
-        bm2 = BitmaskManager(mask2)
-        if bm1.is_bit_set(nb.value) and bm2.is_bit_set(nb.value):
+        if mask1.is_bit_set(nb.value) and mask2.is_bit_set(nb.value):
             return -1
-        if bm1.is_bit_set(nb.value) and not bm2.is_bit_set(nb.value):
+        if mask1.is_bit_set(nb.value) and not mask2.is_bit_set(nb.value):
             return 1
-        elif not bm1.is_bit_set(nb.value) and bm2.is_bit_set(nb.value):
+        elif not mask1.is_bit_set(nb.value) and mask2.is_bit_set(nb.value):
             return 2 
         return 0
         
@@ -158,58 +158,61 @@ class MaskComparatorClass:
         if mask2 == 0 and mask1 != 0:
             return MaskComparatorClass.COMPARE_FIRST
             
+        bits1 = BitmaskManager(mask1)
+        bits2 = BitmaskManager(mask2)
+
         # For now, just compare the classification levels
-        C1 = MaskComparatorClass.getClassificationLevel(mask1)
-        C2 = MaskComparatorClass.getClassificationLevel(mask2)
+        C1 = MaskComparatorClass.getClassificationLevel(bits1)
+        C2 = MaskComparatorClass.getClassificationLevel(bits2)
         if C1 > C2:
             return MaskComparatorClass.COMPARE_FIRST
         elif C2 > C1:
             return MaskComparatorClass.COMPARE_SECOND
 
         # Special handling for Unclassified
-        if MaskComparatorClass.getUnclassifiedBit(mask1):
-            if MaskComparatorClass.getCUIBit(mask1):
-                if not MaskComparatorClass.getCUIBit(mask2):
+        if MaskComparatorClass.getUnclassifiedBit(bits1):
+            if MaskComparatorClass.getCUIBit(bits1):
+                if not MaskComparatorClass.getCUIBit(bits2):
                     return MaskComparatorClass.COMPARE_FIRST
                 else:
                     return MaskComparatorClass.COMPARE_EQUAL
             else:
-                if MaskComparatorClass.getCUIBit(mask2):
+                if MaskComparatorClass.getCUIBit(bits2):
                     return MaskComparatorClass.COMPARE_SECOND
                 else:
                     return MaskComparatorClass.COMPARE_EQUAL
                         
         # Classification is the same (e.g., SECRET : SECRET)
         # Check if there are SAP programs involved
-        C1_SAP = MaskComparatorClass.getSAP(mask1)
-        C2_SAP = MaskComparatorClass.getSAP(mask2)
-        if C1_SAP and not C2_SAP:
+        C1_SAP = MaskComparatorClass.getSAP(bits1)
+        C2_SAP = MaskComparatorClass.getSAP(bits2)
+        if C1_SAP > 0 and C2_SAP == 0:
             return MaskComparatorClass.COMPARE_FIRST
-        if C2_SAP and not C1_SAP:
+        if C2_SAP > 0 and C1_SAP == 0:
             return MaskComparatorClass.COMPARE_SECOND
 
-        C1_SCI = MaskComparatorClass.getSCI(mask1)
-        C2_SCI = MaskComparatorClass.getSCI(mask2)
+        C1_SCI = MaskComparatorClass.getSCI(bits1)
+        C2_SCI = MaskComparatorClass.getSCI(bits2)
         if C1_SCI and not C2_SCI:
             return MaskComparatorClass.COMPARE_FIRST
         if C2_SCI and not C1_SCI:
             return MaskComparatorClass.COMPARE_SECOND
         
-        C1_SIG = MaskComparatorClass.getSIGroups(mask1)
-        C2_SIG = MaskComparatorClass.getSIGroups(mask2)
+        C1_SIG = MaskComparatorClass.getSIGroups(bits1)
+        C2_SIG = MaskComparatorClass.getSIGroups(bits2)
         if C1_SIG and not C2_SIG:
             return MaskComparatorClass.COMPARE_FIRST
         if C2_SIG and not C1_SIG:
             return MaskComparatorClass.COMPARE_SECOND
 
-        if MaskComparatorClass.getSIBit(mask1) and not MaskComparatorClass.getSIBit(mask2):
+        if MaskComparatorClass.getSIBit(bits1) and not MaskComparatorClass.getSIBit(bits2):
             return MaskComparatorClass.COMPARE_FIRST
-        if MaskComparatorClass.getSIBit(mask2) and not MaskComparatorClass.getSIBit(mask1):
+        if MaskComparatorClass.getSIBit(bits2) and not MaskComparatorClass.getSIBit(bits1):
             return MaskComparatorClass.COMPARE_SECOND
         
-        if MaskComparatorClass.getTKBit(mask1) and not MaskComparatorClass.getTKBit(mask2):
+        if MaskComparatorClass.getTKBit(bits1) and not MaskComparatorClass.getTKBit(bits2):
             return MaskComparatorClass.COMPARE_FIRST
-        if MaskComparatorClass.getTKBit(mask2) and not MaskComparatorClass.getTKBit(mask1):
+        if MaskComparatorClass.getTKBit(bits2) and not MaskComparatorClass.getTKBit(bits1):
             return MaskComparatorClass.COMPARE_SECOND
 
         # Everything is equal to here, look at distribution restrictions
@@ -227,7 +230,7 @@ class MaskComparatorClass:
         # These seem to be in order from most to less restrictive
         for part in [NamedBits.NOFORN, NamedBits.RELTO_FVEY, NamedBits.RELTO_NATO,
                      NamedBits.RELTO_NINEEYES, NamedBits.RELTO_FOURTEENEYES]:
-            V = MaskComparatorClass.checkRelto(part, mask1, mask2)
+            V = MaskComparatorClass.checkRelto(part, bits1, bits2)
             if V == 1:
                 return MaskComparatorClass.COMPARE_FIRST
             elif V == 2:

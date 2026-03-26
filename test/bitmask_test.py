@@ -37,16 +37,23 @@ def test_nibble_and_byte_extraction():
     bm = BitmaskManager()
     bm.bitmask = 0x12345678
     
-    assert bm.getFirstNibble() == 0x1
-    assert bm.getSecondNibble() == 0x2
-    assert bm.getThirdNibble() == 0x3
-    assert bm.getFouthNibble() == 0x4
-    assert bm.getFifthNibble() == 0x5
-    assert bm.getSixthNibble() == 0x6
-    assert bm.getSeventhNibble() == 0x7
-    assert bm.getEighthNibble() == 0x8
+    assert bm.getFirstNibble() == 0x8, f"got 0x{bm.getFirstNibble:x}"
+    assert bm.getSecondNibble() == 0x7, f"got 0x{bm.getSecondNibble:x}"
+    assert bm.getThirdNibble() == 0x6, f"got 0x{bm.getThirdNibble:x}"
+    assert bm.getFourthNibble() == 0x5, f"got 0x{bm.getFourthNibble:x}"
+    assert bm.getFifthNibble() == 0x4, f"got 0x{bm.getFifthNibble:x}"
+    assert bm.getSixthNibble() == 0x3, f"got 0x{bm.getSixthNibble:x}"
+    assert bm.getSeventhNibble() == 0x2, f"got 0x{bm.getSeventhNibble:x}"
+    assert bm.getEighthNibble() == 0x1, f"got 0x{bm.getEighthNibble:x}"
     
-    assert bm.getFirstByte() == 0x12
-    assert bm.getSecondByte() == 0x34
-    assert bm.getThirdByte() == 0x56
-    assert bm.getForthByte() == 0x78
+    assert bm.getFirstByte() == 0x78, f"got 0x{bm.getFirstByte():x}"
+    assert bm.getSecondByte() == 0x56, f"got 0x{bm.getSecondByte():x}"
+    assert bm.getThirdByte() == 0x34, f"got 0x{bm.getThirdByte():x}"
+    assert bm.getFourthByte() == 0x12, f"got 0x{bm.getFourthByte():x}"
+
+def test_nibblecheck():
+    bm = BitmaskManager()
+    bm.bitmask = 0x87654321
+
+    assert bm.getEighthNibble() == 0x8
+    assert bm.is_bit_set(NamedBits.TOPSECRET.value) == True

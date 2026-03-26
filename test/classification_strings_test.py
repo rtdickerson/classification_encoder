@@ -63,12 +63,14 @@ def test_parseTOPSECRET_NOFORN():
 def test_parseTOPSECRET_SCI_NOFORN():
     ce = ClassificationEncoder(None)
     mask = ce.parseClassificationString("TOP SECRET//SCI//NOFORN")
-    assert mask == 0x81000080, "Got %08X" % mask
+    print ("got 0x%08x" % mask)
+    assert mask == 0x81000080, "Incorrect mask!"
 
 def test_parseTOPSECRET_GAMMA_NOFORN():
     ce = ClassificationEncoder(None)
-    mask = ce.parseClassificationString("TOP SECRET//SI/GAMMA//NOFORN")
-    assert mask == 0x81140080, "Got %08X" % mask
+    mask = ce.parseClassificationString("TOP SECRET//SI-GAMMA//NOFORN")
+    print ("got 0x%08x" % mask)
+    assert mask == 0x81140080, "Incorrect mask!"
 
 def test_parseTOPSECRET_SI_NOFORN():
     cfg = {
@@ -76,7 +78,7 @@ def test_parseTOPSECRET_SI_NOFORN():
     }
 
     ce = ClassificationEncoder(cfg)
-    mask = ce.parseClassificationString("TOP SECRET//SI/ALPHA//NOFORN")
+    mask = ce.parseClassificationString("TOP SECRET//SI-ALPHA//NOFORN")
     assert mask == 0x81240080, "Got %08X" % mask
 
 

@@ -64,15 +64,15 @@ def test_build_classification_SECRET_FVEY2():
 
 def test_build_classification_SECRET_SIG():
     ce = ClassificationEncoder(None)
-    val = ce.parseClassificationString("SECRET//SI/GAMMA//TK//NOFORN")
+    val = ce.parseClassificationString("SECRET//SI-GAMMA/TK//NOFORN")
     cstr = ce.constructClassificationString(val)
-    assert cstr == "SECRET//SI-GAMMA//TK//NOFORN"
+    assert cstr == "SECRET//SI-GAMMA/TK//NOFORN"
 
 def test_build_classification_SECRET_SIG2():
     ce = ClassificationEncoder(None)
-    val = ce.parseClassificationString("SECRET//SI-GAMMA//TK//NOFORN")
+    val = ce.parseClassificationString("SECRET//SI-GAMMA/TK//NOFORN")
     cstr = ce.constructClassificationString(val)
-    assert cstr == "SECRET//SI-GAMMA//TK//NOFORN"
+    assert cstr == "SECRET//SI-GAMMA/TK//NOFORN"
 
 def test_build_classification_SECRET_SIA():
     cfg = {
@@ -82,18 +82,18 @@ def test_build_classification_SECRET_SIA():
         'si-groupc': 'CHARLIE'
     }
     ce = ClassificationEncoder(cfg)
-    val = ce.parseClassificationString("SECRET//SI-ALPHA//TK//NOFORN")
+    val = ce.parseClassificationString("SECRET//SI-ALPHA/TK//NOFORN")
     cstr = ce.constructClassificationString(val)
-    assert cstr == "SECRET//SI-ALPHA//TK//NOFORN"
+    assert cstr == "SECRET//SI-ALPHA/TK//NOFORN"
 
 def test_build_classification_SECRET_SAPA():
     cfg = {
-        'sap-a' : "SAP-ALPHA",
+        'sap-a' : "ALPHA",
         'si-groupa': 'ALPHA',
         'si-groupb': 'BRAVO',
         'si-groupc': 'CHARLIE'
     }
     ce = ClassificationEncoder(cfg)
-    val = ce.parseClassificationString("SECRET//SAP-ALPHA//SI//TK//NOFORN")
+    val = ce.parseClassificationString("SECRET//SAR-ALPHA//SI/TK//NOFORN")
     cstr = ce.constructClassificationString(val)
-    assert cstr == "SECRET//SAP-ALPHA//SI//TK//NOFORN"
+    assert cstr == "SECRET//SAR-ALPHA//SI/TK//NOFORN"

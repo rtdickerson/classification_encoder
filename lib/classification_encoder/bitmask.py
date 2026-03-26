@@ -131,51 +131,51 @@ class BitmaskManager:
     
     def getFirstNibble(self) -> int:
         """Get the first (most significant) nibble (4 bits) of the bitmask."""
-        return (self.bitmask >> 28) & 0xF
+        return self.bitmask & 0xF
     
     def getSecondNibble(self) -> int:
         """Get the second nibble of the bitmask."""
-        return (self.bitmask >> 24) & 0xF   
+        return (self.bitmask >> 4) & 0xF   
     
     def getThirdNibble(self) -> int:
         """Get the third nibble of the bitmask."""
-        return (self.bitmask >> 20) & 0xF
+        return (self.bitmask >> 8) & 0xF
     
     def getFourthNibble(self) -> int:
         """Get the fourth nibble of the bitmask."""
-        return (self.bitmask >> 16) & 0xF
+        return (self.bitmask >> 12) & 0xF
         
     def getFifthNibble(self) -> int:
         """Get the fifth nibble of the bitmask."""
-        return (self.bitmask >> 12) & 0xF
+        return (self.bitmask >> 16) & 0xF
     
     def getSixthNibble(self) -> int:
         """Get the sixth nibble of the bitmask."""
-        return (self.bitmask >> 8) & 0xF    
+        return (self.bitmask >> 20) & 0xF    
     
     def getSeventhNibble(self) -> int:
         """Get the seventh nibble of the bitmask."""
-        return (self.bitmask >> 4) & 0xF
+        return (self.bitmask >> 24) & 0xF
     
     def getEighthNibble(self) -> int:
         """Get the eighth (least significant) nibble of the bitmask."""
-        return self.bitmask & 0xF
+        return (self.bitmask >> 28) & 0xF
     
     def getFirstByte(self) -> int:
         """Get the first (most significant) byte of the bitmask."""
-        return (self.bitmask >> 24) & 0xFF
+        return self.bitmask  & 0xFF
     
     def getSecondByte(self) -> int:
         """Get the second byte of the bitmask."""
-        return (self.bitmask >> 16) & 0xFF
+        return (self.bitmask >> 8) & 0xFF
     
     def getThirdByte(self) -> int:
         """Get the third byte of the bitmask."""
-        return (self.bitmask >> 8) & 0xFF
+        return (self.bitmask >> 16) & 0xFF
     
     def getFourthByte(self) -> int:
         """Get the fourth (least significant) byte of the bitmask."""
-        return self.bitmask & 0xFF
+        return (self.bitmask >> 24) & 0xFF
 
     def anySet(self, bitlist: List[int]) -> bool:
         """

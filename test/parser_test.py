@@ -81,12 +81,6 @@ def test_splitting_classiciation():
     assert parts[0] == "SECRET"
     assert parts[1] == 'SI-GROUPA'
     assert parts[2] == "REL TO USA, GBR"
-    parts = ce.splitOnClearanceSeparator("SECRET//SI/GROUPA//REL TO USA, GBR")
-    assert len(parts) == 4
-    assert parts[0] == "SECRET"
-    assert parts[1] == "SI"
-    assert parts[2] == 'GROUPA'
-    assert parts[3] == "REL TO USA, GBR"
 
 def test_handlerelto():
     cfg = {
