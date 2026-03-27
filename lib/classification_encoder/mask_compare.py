@@ -205,6 +205,13 @@ class MaskComparatorClass:
         if C2_SIG and not C1_SIG:
             return MaskComparatorClass.COMPARE_SECOND
 
+        # HCS is most restrictive if present.
+        if MaskComparatorClass.getHCSBit(bits1) and not MaskComparatorClass.getHCSBit(bits2):
+            return MaskComparatorClass.COMPARE_FIRST
+        elif MaskComparatorClass.getHCSBit(bits2) and not MaskComparatorClass.getHCSBit(bits1):
+            return MaskComparatorClass.COMPARE_SECOND
+        
+
         if MaskComparatorClass.getSIBit(bits1) and not MaskComparatorClass.getSIBit(bits2):
             return MaskComparatorClass.COMPARE_FIRST
         if MaskComparatorClass.getSIBit(bits2) and not MaskComparatorClass.getSIBit(bits1):
@@ -241,6 +248,33 @@ class MaskComparatorClass:
         # At this point all that remains is the custom REL TO groups
         # and we have no clear way to score them
         return MaskComparatorClass.COMPARE_EQUAL
+
+    @staticmethod
+    def compareThree(mask1:int, mask2:int, mask3:int) -> int:
+        result = MaskComparatorClass.compareTwo(mask1, mask2)
+        # If they're equal, it doesn't matter which we test against the third
+        if result == MaskComparatorClass.COMPARE_EQUAL:
+            result = MaskComparatorClass.compareTwo(mask1, mask3)
+            if result == MaskComparatorClass.COMPARE_EQUAL:
+                return MaskComparatorClass.COMPARE_EQUAL
+        # The first is more, test against 3rd
+        elif result == MaskComparatorClass.COMPARE_FIRST:
+            result = MaskComparatorClass.compareTwo(mask1, mask3)
+            if result == MaskComparatorClass.COMPARE_FIRST:
+                return MaskComparatorClass.COMPARE_FIRST
+            elif result == MaskComparatorClass.COMPARE_SECOND:
+                return MaskComparatorClass.COMPARE_THIRD
+            else:
+                return MaskComparatorClass.COMPARE_EQUAL
+        # The second is more, test against third
+        else:
+            result = MaskComparatorClass.compareTwo(mask2, mask3)
+            if result == MaskComparatorClass.COMPARE_FIRST:
+                return MaskComparatorClass.COMPARE_SECOND
+            elif result == MaskComparatorClass.COMPARE_SECOND:
+                return MaskComparatorClass.COMPARE_THIRD
+            else:
+                return MaskComparatorClass.COMPARE_EQUAL
 
 ##
 ## UNCLASSIFIED

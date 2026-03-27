@@ -408,6 +408,12 @@ class ClassificationEncoder:
             return
         if not part.startswith("SI-"):  # Must start with "SI-" for codewords
             return
+        if part == "SI-G": # Shorthand for SI-GAMMA
+            self.bits.set_bit(NamedBits.SCI.value)
+            self.bits.set_bit(NamedBits.SI.value)
+            self.bits.set_bit(NamedBits.GAMMA.value)
+            return
+
             
         # We know it's at least SI, even if we don't recognize the codewords
         self.bits.set_bit(NamedBits.SCI.value)
@@ -481,6 +487,14 @@ class ClassificationEncoder:
             self.bits.set_bit(NamedBits.SCI.value)
             self.bits.set_bit(NamedBits.HCS.value)
             return
+        elif part == "HCS-P":
+            self.bits.set_bit(NamedBits.SCI.value)
+            self.bits.set_bit(NamedBits.HCS.value)
+            self.bits.set_bit(NamedBits.HCS_P.value)
+        elif part == "HCS-O":
+            self.bits.set_bit(NamedBits.SCI.value)
+            self.bits.set_bit(NamedBits.HCS.value)
+            self.bits.set_bit(NamedBits.HCS_O.value)
         if part.startswith("HCS-"):
             # HCS with codewords (we don't track individual HCS codewords yet)
             self.bits.set_bit(NamedBits.SCI.value)
@@ -662,7 +676,12 @@ class ClassificationEncoder:
                 
                 # Handle HCS compartment
                 if self.bits.is_bit_set(NamedBits.HCS.value):
-                    compartments.append("HCS")
+                    if self.bits.is_bit_set(NamedBits.HCS_O):
+                        compartments.append("HCS-O")
+                    elif self.bits.is_bit_set(NamedBits.HCS_P):
+                        compartments.append("HCS-P")
+                    else:
+                        compartments.append("HCS")
                 
                 if compartments:
                     result += "//" + "/".join(compartments)

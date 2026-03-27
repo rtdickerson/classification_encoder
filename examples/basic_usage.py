@@ -27,9 +27,9 @@ def example_basic_encoding():
         "UNCLASSIFIED",
         "CUI",
         "SECRET//NOFORN",
-        "TOP SECRET//SCI//TK//NOFORN",
+        "TOP SECRET//TK//NOFORN",
         "SECRET//REL TO FVEY",
-        "TOP SECRET//SI/GAMMA//TK//REL TO AUS, CAN, NZL, GBR, USA",
+        "TOP SECRET//SI-GAMMA/TK//REL TO AUS, CAN, NZL, GBR, USA",
     ]
     
     for classification in test_strings:
@@ -48,18 +48,18 @@ def example_custom_config():
     
     # Define custom SAP programs and SI groups
     config = {
-        'sap-a': 'PROGRAM-ALPHA',
-        'sap-b': 'PROGRAM-BRAVO',
-        'si-groupa': 'CODEWORD-ONE',
-        'si-groupb': 'CODEWORD-TWO',
+        'sap-a': 'PROGRAM ALPHA',
+        'sap-b': 'PROGRAM BRAVO',
+        'si-groupa': 'CODEWORDONE',
+        'si-groupb': 'CODEWORDTWO',
         'relto-a': 'REL TO USA, GBR, CAN'
     }
     
     ce = ClassificationEncoder(config)
     
     test_strings = [
-        "SECRET//SAR-PROGRAM-ALPHA//NOFORN",
-        "TOP SECRET//SAR-PROGRAM-BRAVO//SI/CODEWORD-ONE//TK//NOFORN",
+        "SECRET//SAR-PROGRAM ALPHA//NOFORN",
+        "TOP SECRET//SAR-PROGRAM BRAVO//SI/CODEWORDONE/TK//NOFORN",
         "SECRET//REL TO USA, GBR, CAN",
     ]
     
@@ -183,8 +183,8 @@ def example_access_check():
     documents = [
         ("Document A", "UNCLASSIFIED"),
         ("Document B", "SECRET//NOFORN"),
-        ("Document C", "TOP SECRET//SCI//SI//NOFORN"),
-        ("Document D", "TOP SECRET//SCI//SI//TK//HCS//NOFORN"),
+        ("Document C", "TOP SECRET//SI//NOFORN"),
+        ("Document D", "TOP SECRET//SI/TK/HCS//NOFORN"),
     ]
     
     print(f"User clearance: {ce.decode(user_clearance)}")

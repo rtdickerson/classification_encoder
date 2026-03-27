@@ -29,6 +29,8 @@ class NamedBits(Enum):
     FOUO = 0x00004000
     PROTECTED = 0x00008000
     HCS = 0x00010000
+    HCS_P = 0x00004000
+    HCS_O = 0x00008000
     SI = 0x00040000
     TK = 0x00080000
     GAMMA = 0x00100000

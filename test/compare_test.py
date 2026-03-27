@@ -96,3 +96,40 @@ def test_compare_TS_TS4():
     comp = MaskComparatorClass.compareTwo(val1, val2)
     assert comp == MaskComparatorClass.COMPARE_EQUAL
 
+def test_compare_TS_TS5():
+    ce = ClassificationEncoder(None)
+    val1 = ce.parseClassificationString("TOP SECRET//SI//NOFORN")
+    val2 = ce.parseClassificationString("TOP SECRET//SI/HCS-O//NOFORN")
+    comp = MaskComparatorClass.compareTwo(val1, val2)
+    assert comp == MaskComparatorClass.COMPARE_SECOND
+
+def test_compare_TS_TS6():
+    ce = ClassificationEncoder(None)
+    val1 = ce.parseClassificationString("TOP SECRET//SI-G//NOFORN")
+    val2 = ce.parseClassificationString("TOP SECRET//SI//NOFORN")
+    comp = MaskComparatorClass.compareTwo(val1, val2)
+    assert comp == MaskComparatorClass.COMPARE_FIRST
+
+def test_compare_TS_TS_S():
+    ce = ClassificationEncoder(None)
+    val1 = ce.parseClassificationString("TOP SECRET//SI-G//NOFORN")
+    val2 = ce.parseClassificationString("TOP SECRET//SI//NOFORN")
+    val3 = ce.parseClassificationString("SECRET//SI//NOFORN")
+    comp = MaskComparatorClass.compareThree(val1, val2, val3)
+    assert comp == MaskComparatorClass.COMPARE_FIRST
+
+def test_compare_TS_S_TS():
+    ce = ClassificationEncoder(None)
+    val1 = ce.parseClassificationString("TOP SECRET//SI//NOFORN")
+    val2 = ce.parseClassificationString("SECRET//SI//NOFORN")
+    val3 = ce.parseClassificationString("TOP SECRET//SI-G//NOFORN")
+    comp = MaskComparatorClass.compareThree(val1, val2, val3)
+    assert comp == MaskComparatorClass.COMPARE_THIRD
+
+def test_compare_S_TS_TS():
+    ce = ClassificationEncoder(None)
+    val1 = ce.parseClassificationString("SECRET//SI//NOFORN")
+    val2 = ce.parseClassificationString("TOP SECRET//SI-G//NOFORN")
+    val3 = ce.parseClassificationString("TOP SECRET//SI//NOFORN")
+    comp = MaskComparatorClass.compareThree(val1, val2, val3)
+    assert comp == MaskComparatorClass.COMPARE_SECOND
