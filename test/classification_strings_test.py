@@ -90,3 +90,21 @@ def test_parseTOPSECRET_SAP_NOFORN():
     ce = ClassificationEncoder(cfg)
     mask = ce.parseClassificationString("TOP SECRET//SAR-ALPHA//NOFORN")
     assert mask == 0x82000080, "Got %08X" % mask
+
+def test_parseSI_ECI_BETA():
+    cfg = {
+        'si-groupa': 'ECI BETA',
+    }
+
+    ce = ClassificationEncoder(cfg)
+    mask = ce.parseClassificationString("SECRET//SI-ECI BETA//NOFORN")
+    assert mask == 0x41240080, f"Got 0x{mask:x}"
+
+def test_parseSI_HCS_O_HCS_P():
+    cfg = {
+        'si-groupa': 'ECI BETA',
+    }
+
+    ce = ClassificationEncoder(cfg)
+    mask = ce.parseClassificationString("SECRET//HCS-P/HCS-O//NOFORN")
+    assert mask == 0x4101c080, f"Got 0x{mask:x}"

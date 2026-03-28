@@ -97,3 +97,9 @@ def test_build_classification_SECRET_SAPA():
     val = ce.parseClassificationString("SECRET//SAR-ALPHA//SI/TK//NOFORN")
     cstr = ce.constructClassificationString(val)
     assert cstr == "SECRET//SAR-ALPHA//SI/TK//NOFORN"
+
+def test_build_classification_SECRET_HCS_P_HCS_O():
+    ce = ClassificationEncoder(None)
+    mask = ce.parseClassificationString("SECRET//HCS-P/HCS-O//NOFORN")
+    cstr = ce.constructClassificationString(mask)
+    assert cstr == "SECRET//HCS-O/HCS-P//NOFORN"

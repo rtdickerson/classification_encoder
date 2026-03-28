@@ -675,16 +675,22 @@ class ClassificationEncoder:
                     compartments.append("TK")
                 
                 # Handle HCS compartment
+                hcsStr = ""
                 if self.bits.is_bit_set(NamedBits.HCS.value):
-                    if self.bits.is_bit_set(NamedBits.HCS_O):
-                        compartments.append("HCS-O")
-                    elif self.bits.is_bit_set(NamedBits.HCS_P):
-                        compartments.append("HCS-P")
-                    else:
+                    if self.bits.is_bit_set(NamedBits.HCS_O.value):
+                        hcsStr = "HCS-O"
+                    if self.bits.is_bit_set(NamedBits.HCS_P.value):
+                        if hcsStr != "":
+                            hcsStr += "/"
+                        hcsStr += "HCS-P"
+                    # if nothing, put the HCS 
+                    if hcsStr == "":
                         compartments.append("HCS")
-                
-                if compartments:
-                    result += "//" + "/".join(compartments)
+                    else:
+                        compartments.append(hcsStr)
+            if not result.endswith("//"):
+                result += "//"
+            result +=  "/".join(compartments)
 
         # Handle distribution markings
         if self.bits.is_bit_set(NamedBits.RELIDO.value):
