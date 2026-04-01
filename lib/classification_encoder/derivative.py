@@ -43,23 +43,33 @@ class DerivativeClassificationEncoder:
         elif H == 0x08:
             result.set_bit(NamedBits.TOPSECRET.value)
 
+        # FIX: SAP merging moved OUTSIDE SCI check - SAP can exist without SCI!
+        # Merge SAP programs (union of all SAP markings)
+        for bit in [NamedBits.SAP_A, NamedBits.SAP_B, NamedBits.SAP_C]:
+            if bitmask1.is_bit_set(bit.value) or bitmask2.is_bit_set(bit.value):
+                result.set_bit(bit.value)
+
         # Merge the SCI containers.
         if bitmask1.is_bit_set(NamedBits.SCI.value) or bitmask2.is_bit_set(NamedBits.SCI.value):
             result.set_bit(NamedBits.SCI.value)
-            # Any SAP containers need to be brought forward
-            for bit in [NamedBits.SAP_A, NamedBits.SAP_B, NamedBits.SAP_C, NamedBits.SI, NamedBits.TK, NamedBits.HCS_P, NamedBits.HCS_O, NamedBits.GAMMA]:
+            # FIX: Added NamedBits.HCS and SI_GROUP bits to OR loop
+            # Compartments that propagate via OR (if either source has it)
+            for bit in [NamedBits.SI, NamedBits.TK, 
+                        NamedBits.HCS, NamedBits.HCS_P, NamedBits.HCS_O, NamedBits.GAMMA,
+                        NamedBits.SI_GROUPA, NamedBits.SI_GROUPB, NamedBits.SI_GROUPC]:
                 if bitmask1.is_bit_set(bit.value) or bitmask2.is_bit_set(bit.value):
                     result.set_bit(bit.value)
-            for bit in [NamedBits.SI, NamedBits.SI_GROUPA, NamedBits.SI_GROUPB, NamedBits.SI_GROUPC, NamedBits.TK, NamedBits.HCS_P, NamedBits.HCS_O, NamedBits.GAMMA]:
-                if bitmask1.is_bit_set(bit.value) and bitmask2.is_bit_set(bit.value):
-                    result.set_bit(bit.value)
+            # Compartments that require both sources (intersection) - kept for specific cases
+            # Currently empty as all SCI compartments use OR logic for derivative classification
 
         # Now look at the distrbution markings.
         for bit in [NamedBits.RELIDO]:
             if bitmask1.is_bit_set(bit.value) or bitmask2.is_bit_set(bit.value):
                 result.set_bit(bit.value)         
 
-        ALLREL=[NamedBits.RELTO_FVEY, NamedBits.RELTO_NINEEYES, NamedBits.RELTO_FOURTEENEYES, 
+        # FIX: Added NOFORN to ALLREL list - it's a distribution marking that must be checked
+        # before the early return, otherwise NOFORN-only masks get lost
+        ALLREL=[NamedBits.NOFORN, NamedBits.RELTO_FVEY, NamedBits.RELTO_NINEEYES, NamedBits.RELTO_FOURTEENEYES, 
              NamedBits.RELTO_NATO, NamedBits.RELTO_A, NamedBits.RELTO_B, NamedBits.RELTO_C]
         # if there is no relto on either, return as is.
         if not bitmask1.anyNamedBitsSet(ALLREL) and not bitmask2.anyNamedBitsSet(ALLREL):
