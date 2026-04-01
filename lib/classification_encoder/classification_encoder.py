@@ -23,8 +23,8 @@ SCI Compartment Format:
 - Codewords within a compartment are separated by "-" (dash)
 - Different compartments are separated by "/" (slash)
 - Examples:
-  - SECRET//SI-GAMMA//TK//NOFORN
-  - SECRET//SI-JOE//TK-ABLE//HCS-P//NOFORN
+  - SECRET//SI-GAMMA/TK//NOFORN
+  - SECRET//SI-JOE/TK-ABLE/HCS-P//NOFORN
   - TOP SECRET//SI-ALPHA-BRAVO/TK//NOFORN
 '''
 class ClassificationEncoder:
@@ -332,30 +332,42 @@ class ClassificationEncoder:
             Bit value for the matching RELTO group, or 0 if no match
         """
         if reltoString == "REL TO NATO":
-            return NamedBits.RELTO_NATO.value
+            self.bits.set_bit(NamedBits.RELTO_NATO.value)
+            return True
         elif reltoString == "REL TO FVEY":
-            return NamedBits.RELTO_FVEY.value
+            self.bits.set_bit(NamedBits.RELTO_FVEY.value)
+            return True
+        elif reltoString == "NOFORN":
+            self.bits.set_bit(NamedBits.NOFORN.value)
+            return True
             
         CLIST = self.countries.parseAndValidateRelto(reltoString)
         if self.countries.isNATO(CLIST):
-            return NamedBits.RELTO_NATO.value
+            self.bits.set_bit(NamedBits.RELTO_NATO.value)
+            return True
         elif self.countries.isFVEY(CLIST):
-            return NamedBits.RELTO_FVEY.value
+            self.bits.set_bit(NamedBits.RELTO_FVEY.value)
+            return True
         elif self.countries.isNineEyes(CLIST):
-            return NamedBits.RELTO_NINEEYES.value
+            self.bits.set_bit(NamedBits.RELTO_NINEEYES.value)
+            return True
         elif self.countries.isFourteenEyes(CLIST):
-            return NamedBits.RELTO_FOURTEENEYES.value
+            self.bits.set_bit(NamedBits.RELTO_FOURTEENEYES.value)
+            return True
         elif self.sections['distribution']['relto-a']['enabled'] and \
             set(CLIST) == set(self.sections['distribution']['relto-a']['countries']):
-            return NamedBits.RELTO_A.value
+            self.bits.set_bit(NamedBits.RELTO_A.value)
+            return True
         elif self.sections['distribution']['relto-b']['enabled'] and \
             set(CLIST) == set(self.sections['distribution']['relto-b']['countries']):
-            return NamedBits.RELTO_B.value
+            self.bits.set_bit(NamedBits.RELTO_B.value)
+            return True
         elif self.sections['distribution']['relto-c']['enabled'] and \
             set(CLIST) == set(self.sections['distribution']['relto-c']['countries']):
-            return NamedBits.RELTO_C.value
+            self.bits.set_bit(NamedBits.RELTO_C.value)
+            return True
         else:
-            return 0x00000000
+            return False
         
     def _createCommaSeparatedRelto(self, countryList: List[str]) -> str:
         """Create a comma-separated RELTO string from a country list."""
@@ -457,7 +469,7 @@ class ClassificationEncoder:
             self.bits.set_bit(NamedBits.SCI.value)
             self.bits.set_bit(NamedBits.TK.value)
 
-    def _parseSAP(self, part: str) -> None:
+    def _parseSAP(self, part: str) -> bool:
         """Parse SAP (Special Access Program) designations."""
         wks = part[4:]  # Get text after "SAR-"
         
@@ -465,12 +477,25 @@ class ClassificationEncoder:
         if self.sections['containers']['sap-a']['enabled']:
             if self.sections['containers']['sap-a']['tag'] == wks:
                 self.bits.set_bit(NamedBits.SAP_A.value)
+                return True
+            if "SAR-" +self.sections['containers']['sap-a']['tag'] == wks:
+                self.bits.set_bit(NamedBits.SAP_A.value)
+                return True
         if self.sections['containers']['sap-b']['enabled']:
             if self.sections['containers']['sap-b']['tag'] == wks:
                 self.bits.set_bit(NamedBits.SAP_B.value)
+                return True
+            if "SAR-" +self.sections['containers']['sap-b']['tag'] == wks:
+                self.bits.set_bit(NamedBits.SAP_B.value)
+                return True
         if self.sections['containers']['sap-c']['enabled']:
             if self.sections['containers']['sap-c']['tag'] == wks:
                 self.bits.set_bit(NamedBits.SAP_C.value)
+                return True
+            if "SAR-" +self.sections['containers']['sap-c']['tag'] == wks:
+                self.bits.set_bit(NamedBits.SAP_C.value)
+                return True
+        return False
 
     def _parseHCS(self, part: str) -> None:
         """
@@ -500,12 +525,14 @@ class ClassificationEncoder:
             self.bits.set_bit(NamedBits.SCI.value)
             self.bits.set_bit(NamedBits.HCS.value)
 
+    # Parse the entire SCI container
     def _parseSCICompartments(self, part: str) -> None:
         """
         Parse SCI compartments which may contain multiple compartments separated by "/".
         
         Format: COMPARTMENT1/COMPARTMENT2/COMPARTMENT3
         Where each compartment can be:
+            - SAR-ALPHA or //ALPHA// for SAP programs
             - SI-CODEWORD1-CODEWORD2
             - TK-CODEWORD1-CODEWORD2
             - HCS-CODEWORD1-CODEWORD2
@@ -515,6 +542,11 @@ class ClassificationEncoder:
             SI-JOE/TK-ABLE/HCS-P
             SI/TK/HCS
         """
+
+        if part == "SCI":
+            self.bits.set_bit(NamedBits.SCI.value)
+            return
+
         # Split on "/" to get individual compartments
         compartments = part.split("/")
         
@@ -522,7 +554,10 @@ class ClassificationEncoder:
             compartment = compartment.strip()
             if not compartment:
                 continue
-                
+
+            if self._parseSAP(compartment):
+                continue
+
             if compartment.startswith("SI"):
                 self._parseSI(compartment)
             elif compartment.startswith("TK") or compartment == "TALENT KEYHOLE":
@@ -569,35 +604,57 @@ class ClassificationEncoder:
         self.bits.bitmask = 0x00000000
         
         parts = self.splitOnClearanceSeparator(classification_string)
-        for part in parts:
-            part = part.strip()
-            if part == "UNCLASSIFIED":
-                self.bits.set_bit(NamedBits.UNCLASSIFIED.value)
-            elif part == "CONFIDENTIAL":
-                self.bits.set_bit(NamedBits.CONFIDENTIAL.value)
-            elif part == "SECRET":
-                self.bits.set_bit(NamedBits.SECRET.value)
-            elif part == "TOP SECRET":
-                self.bits.set_bit(NamedBits.TOPSECRET.value)
-            elif part.startswith("SAR-"):
-                self._parseSAP(part)
-            elif part == "SCI":
-                self.bits.set_bit(NamedBits.SCI.value)
-            elif part.startswith("SI") or part.startswith("TK") or part.startswith("HCS") or part == "TALENT KEYHOLE":
-                # This might be a single compartment or multiple compartments separated by "/"
-                self._parseSCICompartments(part)
-            elif part == "NOFORN":
-                self.bits.set_bit(NamedBits.NOFORN.value)
-            elif part.startswith("REL TO"):
-                reltoBit = self.handleRelto(part)
-                if reltoBit != 0x00000000:
-                    self.bits.set_bit(reltoBit)
-            elif part == "CUI":
-                self.bits.set_bit(NamedBits.UNCLASSIFIED.value)
+        if len(parts) == 0:
+            raise ValueError("Invalid classification string format")
+        
+        #  CLASSIFICATION |  SCI CONTAINERS | DISTRIBUTION MARKINGS
+        #         ________/                 \______
+        #                SAP  |  SI | TK | HCS
+
+        if parts[0].strip() == "CUI":
+            self.bits.set_bit(NamedBits.UNCLASSIFIED.value)
+            self.bits.set_bit(NamedBits.CUI.value)
+            return self.bits.bitmask
+
+        # Handle the first chunk which should be the classification level
+        if parts[0].strip() == "UNCLASSIFIED":
+            self.bits.set_bit(NamedBits.UNCLASSIFIED.value)
+        elif parts[0].strip() == "CONFIDENTIAL":
+            self.bits.set_bit(NamedBits.CONFIDENTIAL.value)
+        elif parts[0].strip() == "SECRET":
+            self.bits.set_bit(NamedBits.SECRET.value)
+        elif parts[0].strip() == "TOP SECRET":
+            self.bits.set_bit(NamedBits.TOPSECRET.value)
+        else:
+            raise ValueError(f"Invalid classification level: {parts[0].strip()}")
+
+        # Only CLASSIFICATION, nothing else
+        if len(parts) == 1:
+            return self.bits.bitmask
+
+        if self.bits.is_bit_set(NamedBits.UNCLASSIFIED.value):
+            # Handle UNCLASSIFIED distribution markings like SBU
+            if parts[1].strip() == "CUI":
                 self.bits.set_bit(NamedBits.CUI.value)
-            elif part == "SBU":
-                self.bits.set_bit(NamedBits.UNCLASSIFIED.value)
+                return self.bits.bitmask
+            if parts[1].strip() == "SBU":
                 self.bits.set_bit(NamedBits.SBU.value)
+                return self.bits.bitmask
+            
+        # See if the REL TO is second which means its short like
+        # SECRET//REL TO FVEY and there are no SCI containers               
+        if self.handleRelto(parts[1].strip()):
+            return self.bits.bitmask
+        
+        # SCI containers are present, parse them
+        self._parseSCICompartments(parts[1].strip())
+
+        # is that all?
+        if len(parts) == 2:
+            return self.bits.bitmask
+        
+        # Process the REL TO
+        self.handleRelto(parts[2].strip())
         return self.bits.bitmask
     
     def constructClassificationString(self, classification_mask: int) -> str:
@@ -641,21 +698,20 @@ class ClassificationEncoder:
                     result = bit.name
                 break
         
+        SCI_CONTAINERS = []
         # Add the SAP programs first if defined
         if self.bits.is_bit_set(NamedBits.SAP_A.value):
-            result += f"//SAR-{self.sections['containers']['sap-a']['tag']}"
+            SCI_CONTAINERS.append(f"{self.sections['containers']['sap-a']['tag']}")
         if self.bits.is_bit_set(NamedBits.SAP_B.value):
-            result += f"//SAR-{self.sections['containers']['sap-b']['tag']}"
+            SCI_CONTAINERS.append(f"{self.sections['containers']['sap-b']['tag']}")
         if self.bits.is_bit_set(NamedBits.SAP_C.value):
-            result += f"//SAR-{self.sections['containers']['sap-c']['tag']}"
+            SCI_CONTAINERS.append(f"{self.sections['containers']['sap-c']['tag']}")
 
         # Handle SCI compartments
         if self.bits.is_bit_set(NamedBits.SCI.value):
             if not self.bits.anySCISet():
                 result += "//SCI"
             else:
-                # Build compartments separated by "/"
-                compartments = []
                 
                 # Handle SI compartment with codewords
                 if self.bits.is_bit_set(NamedBits.SI.value):
@@ -668,11 +724,11 @@ class ClassificationEncoder:
                         si_parts.append(self.sections['containers']['si-groupc']['tag'])
                     if self.bits.is_bit_set(NamedBits.GAMMA.value):
                         si_parts.append("GAMMA")
-                    compartments.append("-".join(si_parts))
+                    SCI_CONTAINERS.append("-".join(si_parts))
                 
                 # Handle TK compartment
                 if self.bits.is_bit_set(NamedBits.TK.value):
-                    compartments.append("TK")
+                    SCI_CONTAINERS.append("TK")
                 
                 # Handle HCS compartment
                 hcsStr = ""
@@ -685,12 +741,12 @@ class ClassificationEncoder:
                         hcsStr += "HCS-P"
                     # if nothing, put the HCS 
                     if hcsStr == "":
-                        compartments.append("HCS")
+                        SCI_CONTAINERS.append("HCS")
                     else:
-                        compartments.append(hcsStr)
+                        SCI_CONTAINERS.append(hcsStr)
             if not result.endswith("//"):
                 result += "//"
-            result +=  "/".join(compartments)
+            result +=  "/".join(SCI_CONTAINERS)
 
         # Handle distribution markings
         if self.bits.is_bit_set(NamedBits.RELIDO.value):

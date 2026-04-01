@@ -62,9 +62,10 @@ from .bitmask import BitmaskManager
 from .countrydatabase import CountryDatabase
 from .classification_encoder import ClassificationEncoder
 from .mask_compare import MaskComparatorClass
+from .derivative import DerivativeClassificationEncoder
 
 # List to store all exported names
-__all__ = ["NamedBits", "BitmaskManager", "CountryDatabase", "ClassificationEncoder","MaskComparatorClass"]
+__all__ = ["NamedBits", "BitmaskManager", "CountryDatabase", "ClassificationEncoder","MaskComparatorClass","DerivativeClassificationEncoder"]
 
     
 ##

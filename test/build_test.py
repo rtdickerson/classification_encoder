@@ -94,9 +94,9 @@ def test_build_classification_SECRET_SAPA():
         'si-groupc': 'CHARLIE'
     }
     ce = ClassificationEncoder(cfg)
-    val = ce.parseClassificationString("SECRET//SAR-ALPHA//SI/TK//NOFORN")
+    val = ce.parseClassificationString("SECRET//SAR-ALPHA/SI/TK//NOFORN")
     cstr = ce.constructClassificationString(val)
-    assert cstr == "SECRET//SAR-ALPHA//SI/TK//NOFORN"
+    assert cstr == "SECRET//ALPHA/SI/TK//NOFORN"
 
 def test_build_classification_SECRET_HCS_P_HCS_O():
     ce = ClassificationEncoder(None)
